@@ -1,18 +1,13 @@
 package com.sola.instagram.auth;
 
-import com.sola.instagram.InstagramSession;
-import com.sola.instagram.auth.AccessToken;
 import com.sola.instagram.exception.InstagramException;
 import com.sola.instagram.io.PostMethod;
 import com.sola.instagram.io.UriFactory;
 import com.sola.instagram.model.User;
 import com.sola.instagram.util.UriConstructor;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.HashMap;
 
 public class InstagramAuthentication {
 	String redirectUri;
@@ -80,7 +75,7 @@ public class InstagramAuthentication {
 		postArgs.put("code", code);
 
 		
-		  JSONObject response = (new PostMethod() .setPostParameters(postArgs)
+	  	JSONObject response = (new PostMethod().setPostParameters(postArgs)
 		  .setMethodURI(UriFactory.Auth.GET_ACCESS_TOKEN) ).call().getJSON();
 		 
 		try {
