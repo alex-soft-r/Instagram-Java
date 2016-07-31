@@ -1,6 +1,6 @@
 package com.sola.instagram.io;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.HttpResponse;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
 
 import java.io.InputStream;
 
@@ -17,10 +17,17 @@ public class DeleteMethod extends APIMethod {
 	
 	@Override
 	protected InputStream performRequest() throws Exception {
-		HttpDelete   delete   = new HttpDelete(this.methodUri);
-		HttpResponse response = client.execute(delete);
-		InputStream  stream   = response.getEntity().getContent();
+		Response response;
+		InputStream stream = null;
+		try {
+			Request request = new Request.Builder()
+					.url(this.methodUri)
+					.build();
+			response = client.newCall(request).execute();
+			stream = response.body().byteStream();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		return stream;
 	}
-
 }

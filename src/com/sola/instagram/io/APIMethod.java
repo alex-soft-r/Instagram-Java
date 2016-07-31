@@ -1,12 +1,13 @@
 package com.sola.instagram.io;
 
+
+import com.squareup.okhttp.OkHttpClient;
+
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.HttpHost;
-import org.apache.http.conn.params.ConnRoutePNames;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 
 public abstract class APIMethod {
 	String methodUri;
@@ -14,16 +15,17 @@ public abstract class APIMethod {
 	String accessToken;
 	static String proxyAddress;
 	static int proxyPort;
-	DefaultHttpClient client;
+	OkHttpClient client;
 
 	abstract protected InputStream performRequest() throws Exception;
 	
 	public APIMethod() {
-		client = new DefaultHttpClient();
+		client = new OkHttpClient();
 		if(APIMethod.hasProxy()) {
 			System.out.println("using proxy -> " + APIMethod.proxyAddress + ":" + APIMethod.proxyPort);
-			HttpHost proxy = new HttpHost(APIMethod.proxyAddress, APIMethod.proxyPort, "http");
-			client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
+//			HttpHost proxy = new HttpHost(APIMethod.proxyAddress, APIMethod.proxyPort, "http");
+//			client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
+			client.setProxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(APIMethod.proxyAddress, APIMethod.proxyPort)));
 		}
 	}
 	
@@ -44,11 +46,14 @@ public abstract class APIMethod {
 	public RequestResponse call() throws Exception {
 		System.out.println(this.methodUri);
 		StringBuilder sb  = new StringBuilder();
-		BufferedReader rd = new BufferedReader(new InputStreamReader(performRequest()));
+		InputStream response = performRequest();
+		BufferedReader rd = new BufferedReader(new InputStreamReader(response));
 		String chunk;
 		while ((chunk = rd.readLine()) != null) {
 			sb.append(chunk);
 		}
+		if(response!=null)
+			response.close();
 		return new RequestResponse(sb.toString());
 	}
 	

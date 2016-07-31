@@ -1,19 +1,17 @@
 package com.sola.instagram.io;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.io.InputStream;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.message.BasicNameValuePair;
+import com.squareup.okhttp.*;
+
+import java.io.InputStream;
+import java.util.Map;
 
 
 public class PostMethod extends APIMethod {
 	Map<String, Object> postParameters;
-	
+//	public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+	//application/x-www-form-urlencoded
+//	public static final MediaType MEDIA_TYPE_MARKDOWN = MediaType.parse("text/x-markdown; charset=utf-8");
+
 	public PostMethod() {
 		super();
 		this.type = "POST";
@@ -22,21 +20,24 @@ public class PostMethod extends APIMethod {
 	public PostMethod(String methodUri) {
 		super(methodUri);
 		this.type = "POST";
-	}	
-	
+	}
+
 	@Override
 	protected InputStream performRequest() {
-		HttpResponse response;
-		HttpPost post = new HttpPost(this.methodUri);
-		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
+		Response response;
+		FormEncodingBuilder formBody = new FormEncodingBuilder();
 		for (Map.Entry<String, Object> arg : getPostParameters().entrySet()) {
-			nameValuePairs.add(new BasicNameValuePair(arg.getKey(), arg.getValue().toString()));
+			formBody.add(arg.getKey(), arg.getValue().toString());
 		}
+		RequestBody requestBody = formBody.build();
 		InputStream stream = null;
 		try {
-			post.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-			response = client.execute(post);
-			stream = response.getEntity().getContent();
+			Request request = new Request.Builder()
+					.url(this.methodUri)
+					.post(requestBody)
+					.build();
+			response = client.newCall(request).execute();
+			stream = response.body().byteStream();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

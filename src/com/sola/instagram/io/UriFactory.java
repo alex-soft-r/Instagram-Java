@@ -53,4 +53,9 @@ public class UriFactory {
 		public static final String USER_AUTHORIZATION = "https://api.instagram.com/oauth/authorize/?client_id={client_id}&redirect_uri={redirect_uri}&response_type={response_type}&scope={scope}";
 		public static final String GET_ACCESS_TOKEN = "https://api.instagram.com/oauth/access_token";
 	}
+
+        public class NewMedia {
+		public static final String NEWMEDIA_UPLOAD = "http://instagr.am/api/v1/media/upload/";
+		public static final String NEWMEDIA_CONFIGURE = "https://instagr.am/api/v1/media/configure/";
+	}
 }
