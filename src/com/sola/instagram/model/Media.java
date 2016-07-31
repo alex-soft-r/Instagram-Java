@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import android.text.TextUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -375,6 +376,21 @@ public class Media extends InstagramModel {
 				comments.add(new Comment(commentObjects.getJSONObject(i), accessToken));
 			}
 			setComments(comments);	
+		}
+		return comments;
+	}
+	public List<Comment> getComments(String id) throws Exception {
+		if(comments == null && !TextUtils.isEmpty(id)) {
+			HashMap<String, Object> map = new HashMap<String, Object>();
+			map.put("media_id", id);
+			String uri = uriConstructor.constructUri(UriFactory.Comments.GET_MEDIA_COMMENTS, map, true);
+			JSONObject object = (new GetMethod(uri)).call().getJSON();
+			JSONArray commentObjects    = object.getJSONArray("data");
+			ArrayList<Comment> comments = new ArrayList<Comment>();
+			for(int i = 0; i < commentObjects.length(); i++) {
+				comments.add(new Comment(commentObjects.getJSONObject(i), accessToken));
+			}
+			setComments(comments);
 		}
 		return comments;
 	}

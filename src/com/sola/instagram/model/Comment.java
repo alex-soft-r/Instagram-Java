@@ -9,8 +9,7 @@ public class Comment extends InstagramModel {
 	User sender;
 	String id;
 
-	public Comment(JSONObject obj, String accessToken)
-			throws JSONException {
+	public Comment(JSONObject obj, String accessToken) throws JSONException {
 		super(obj, accessToken);
 		setCreatedTimestamp(obj.getString("created_time"));
 		setText(obj.getString("text"));
