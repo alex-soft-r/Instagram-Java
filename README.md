@@ -1,6 +1,9 @@
 Instagram for Java
 ==============
-Java wrapper for Instagram's API v1
+Java wrapper for Instagram's API v1.1
+
+Cahjes by @alex-soft-r
+Change org.apache to okhttp
 
 ### Maven 
 ```xml
@@ -108,3 +111,8 @@ Here are some common endpoint calls. Please refer to the javadoc at `/doc/com/so
 ## License
 Copyright (c) 2013 Sola Ogunsakin
 Licensed under the MIT license.
+
+## About me
+* Email : juniorsola@yahoo.com
+* LinkedIn : http://ca.linkedin.com/pub/sola-ogunsakin/45/a5/5a0/
+* Twitter : @SolaOgunsakin
