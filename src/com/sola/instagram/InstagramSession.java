@@ -30,18 +30,23 @@ import com.sola.instagram.io.DeleteMethod;
 import com.sola.instagram.io.GetMethod;
 import com.sola.instagram.io.PostMethod;
 import com.sola.instagram.io.UriFactory;
-import com.sola.instagram.model.*;
+import com.sola.instagram.model.Comment;
+import com.sola.instagram.model.Location;
+import com.sola.instagram.model.Media;
+import com.sola.instagram.model.Relationship;
+import com.sola.instagram.model.Tag;
+import com.sola.instagram.model.User;
 import com.sola.instagram.util.PaginatedCollection;
 import com.sola.instagram.util.PaginationIterator;
 import com.sola.instagram.util.UriConstructor;
 
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.util.List;
-
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONArray;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Constains a methods used to interact with the API.
@@ -367,9 +372,23 @@ public class InstagramSession {
 		String uri = uriConstructor.constructUri(UriFactory.Comments.POST_MEDIA_COMMENT, map, false);
 		PostMethod post   = new PostMethod(uri).setPostParameters(args);
 		JSONObject object = post.call().getJSON();
-		return new Comment(object.getJSONObject("data"), getAccessToken());
+                if(object.has("data")) {
+                    return new Comment(object.getJSONObject("data"), getAccessToken());
+                }
+                else{
+                    throw new Exception(object.getJSONObject("meta").getString("error_message"));
+                }
 	}
-
+/*
+object = {org.json.JSONObject@830062290560}"{"meta":{"error_type":"APIError","error_message":"This client ID is not permitted to POST comments. For more info, please refer to our developer site at http:\/\/instagram.com\/developer\/endpoints\/comments.","code":400}}"
+nameValuePairs = {java.util.HashMap@830066749352} size = 1
+    [0] = {java.util.HashMap$HashMapEntry@830060265568}"meta" -> "{"error_type":"APIError","error_message":"This client ID is not permitted to POST comments. For more info, please refer to our developer site at http:\/\/instagram.com\/developer\/endpoints\/comments.","code":400}"
+        key: java.lang.String = {java.lang.String@830060281208}"meta"
+        value: org.json.JSONObject = {org.json.JSONObject@830060520496}"{"error_type":"APIError","error_message":"This client ID is not permitted to POST comments. For more info, please refer to our developer site at http:\/\/instagram.com\/developer\/endpoints\/comments.","code":400}"
+            nameValuePairs = {java.util.HashMap@830066749408} size = 3
+                [0] = {java.util.HashMap$HashMapEntry@830060275528}"error_type" -> "APIError"
+                [1] = {java.util.HashMap$HashMapEntry@830060266192}"error_message" -> "This client ID is not permitted to POST comments. For more info, please refer to our developer site at http://instagram.com/developer/endpoints/comments."
+                [2] = {java.util.HashMap$HashMapEntry@830060271968}"code" -> "400"*/
 	public boolean removeComment(String mediaId, String commentId) throws Exception {
 		HashMap<String, Object> map = new HashMap<String, Object>();
 		map.put("media_id", mediaId);
@@ -457,4 +476,69 @@ public class InstagramSession {
 		};
 		return new PaginatedCollection<Media>(media, iterator);
 	}
+
+        public JSONObject Upload(String filename) throws Exception{
+            HashMap<String, Object> map = new HashMap<String, Object>();
+            HashMap<String, Object> args = new HashMap<String, Object>();
+            args.put("access_token", getAccessToken());
+            args.put("photo", filename);
+            String uri = uriConstructor.constructUri(UriFactory.NewMedia.NEWMEDIA_UPLOAD, map, false);
+            PostMethod post   = new PostMethod(uri).setPostParameters(args);
+            JSONObject object = post.call().getJSON();
+            return object;
+        }
+
+        public JSONObject ConfigureUpload(JSONObject obj, String caption, String tags) throws Exception{
+            HashMap<String, Object> map  = new HashMap<String, Object>();
+            HashMap<String, Object> args = new HashMap<String, Object>();
+            args.put("access_token", getAccessToken());
+            args.put("device_timestamp", System.currentTimeMillis());
+            args.put("media_id", obj.getString("media_id"));
+            args.put("caption", caption);
+//            args.put("_uid", filename);
+//            args.put("_csrftoken", filename);
+//            args.put("_uuid", filename);
+            args.put("geotag_enabled", false);
+//            args.put("usertags", "{\"in\":["+tags+"]}");
+            args.put("source_type", 0);
+            String uri = uriConstructor.constructUri(UriFactory.NewMedia.NEWMEDIA_CONFIGURE, map, false);
+            PostMethod post   = new PostMethod(uri).setPostParameters(args);
+            JSONObject object = post.call().getJSON();
+            return object;
+        }
+    /*
+         def upload(self, filename):
+        r = self.call("post",
+                      "http://instagram.com/api/v1/media/upload/",
+                      files = {
+                          'photo': open(filename, 'rb')
+                      },
+                      data = {
+                          'device_timestamp': int(time.time())
+                      }
+        )
+        print r.text
+        return r.json()["media_id"]
+
+    def configure(self, media_id, caption):
+        r = self.call("post",
+                      "https://instagram.com/api/v1/media/configure/",
+                      signed = True,
+                      cookies = {
+                          "igls": self.cookies["ds_user"]
+                      },
+                      data = OrderedDict([
+                          ("device_timestamp", int(time.time())),
+                          ("media_id", media_id),
+                          ("caption", caption),
+                          ("_uid", self.cookies["ds_user_id"]),
+                          ("_csrftoken", self.cookies["csrftoken"]),
+                          ("_uuid", self.__class__.DEVICEID),
+                          ("geotag_enabled", False),
+                          ("usertags", '{"in":[]}'),
+                          ("source_type", 0)
+                      ])
+        )
+        print r.text
+        */
 }
